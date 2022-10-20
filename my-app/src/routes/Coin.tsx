@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Outlet, Link, useMatch } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { axiosCoinInfo, axiosCoinTickers } from "../api";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -142,9 +143,10 @@ export function Coin() {
   const chartMatch = useMatch("/:coinId/chart");
   const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
     ["info", coinId],
-    () => axiosCoinInfo(coinId!)
+    () => axiosCoinInfo(coinId!),
+    { refetchInterval: 5000 }
   );
-  const { isLoading: tickersLoading, data: tickerData } = useQuery<PriceData>(
+  const { isLoading: tickersLoading, data: tickersData } = useQuery<PriceData>(
     ["tickers", coinId],
     () => axiosCoinTickers(coinId!)
   );
@@ -152,8 +154,17 @@ export function Coin() {
   const loading = infoLoading || tickersLoading;
   return (
     <Container>
+      <HelmetProvider>
+        <Helmet>
+          <title>
+            {state?.name ? state?.name || "Loading.." : infoData?.name}
+          </title>
+        </Helmet>
+      </HelmetProvider>
       <Header>
-        <Title>{state?.name ? state?.name || "Loading.." : infoData?.name}</Title>
+        <Title>
+          {state?.name ? state?.name || "Loading.." : infoData?.name}
+        </Title>
       </Header>
       {loading ? (
         <Loader>"Loading..."</Loader>
@@ -177,11 +188,11 @@ export function Coin() {
           <Overview>
             <OverviewItem>
               <span>Total Suply:</span>
-              <span>{tickerData?.total_supply}</span>
+              <span>{tickersData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Max Supply:</span>
-              <span>{tickerData?.max_supply}</span>
+              <span>Price:</span>
+              <span>{tickersData?.quotes.USD.price.toFixed(3)}</span>
             </OverviewItem>
           </Overview>
           <Tabs>
@@ -192,7 +203,7 @@ export function Coin() {
               <Link to={`price`}>Price</Link>
             </Tab>
           </Tabs>
-          <Outlet />
+          <Outlet context={{ coinId: coinId as string }} />
         </>
       )}
     </Container>

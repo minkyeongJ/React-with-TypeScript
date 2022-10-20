@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 // import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { axiosCoins } from "../api";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -65,10 +66,18 @@ interface CoinInterface {
 }
 
 export function Coins() {
-  const { isLoading, data } = useQuery<CoinInterface[]>(["allCoins"], axiosCoins);
-
+  const { isLoading, data } = useQuery<CoinInterface[]>(
+    ["allCoins"],
+    axiosCoins
+  );
+  const helmetContext = {};
   return (
     <Container>
+      <HelmetProvider context={helmetContext}>
+        <Helmet>
+          <title>코인</title>
+        </Helmet>
+      </HelmetProvider>
       <Header>
         <Title>코인</Title>
       </Header>
