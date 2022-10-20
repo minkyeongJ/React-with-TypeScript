@@ -1,6 +1,6 @@
-import React, { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { Router } from "./routes/Router";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // import Circle from "./Circle";
 
 const Container = styled.div`
@@ -78,6 +78,7 @@ function App() {
     <>
       <GlobalStyle />
       <Router />
+      <ReactQueryDevtools initialIsOpen={true} />
     </>
   );
 }

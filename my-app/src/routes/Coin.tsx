@@ -1,8 +1,8 @@
 import { useParams, useLocation } from "react-router";
-import { useEffect, useState } from "react";
 import styled from "styled-components";
-import axios from "axios";
 import { Outlet, Link, useMatch } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { axiosCoinInfo, axiosCoinTickers } from "../api";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -70,6 +70,10 @@ const Tab = styled.span<{ isActive: boolean }>`
     display: block;
   }
 `;
+
+interface RouteParams {
+  coinId: string;
+}
 interface RouteState {
   name: string;
 }
@@ -131,33 +135,25 @@ interface PriceData {
 }
 
 export function Coin() {
-  const [loading, setLoading] = useState(true);
   const { coinId } = useParams();
   const location = useLocation();
   const state = location.state as RouteState;
-  const [info, setInfo] = useState<InfoData>();
-  const [priceInfo, setPriceInfo] = useState<PriceData>();
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
-  useEffect(() => {
-    (async () => {
-      const infoData = await (
-        await axios.get(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).data;
-      console.log(infoData);
-      const priceData = await (
-        await axios.get(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).data;
-      console.log(priceData);
-      setInfo(infoData);
-      setPriceInfo(priceData);
-      setLoading(false);
-    })();
-  }, [coinId]);
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+    ["info", coinId],
+    () => axiosCoinInfo(coinId!)
+  );
+  const { isLoading: tickersLoading, data: tickerData } = useQuery<PriceData>(
+    ["tickers", coinId],
+    () => axiosCoinTickers(coinId!)
+  );
+
+  const loading = infoLoading || tickersLoading;
   return (
     <Container>
       <Header>
-        <Title>{state?.name ? state?.name || "Loading.." : info?.name}</Title>
+        <Title>{state?.name ? state?.name || "Loading.." : infoData?.name}</Title>
       </Header>
       {loading ? (
         <Loader>"Loading..."</Loader>
@@ -166,26 +162,26 @@ export function Coin() {
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>${info?.symbol}</span>
+              <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Open Source:</span>
-              <span>{info?.open_source ? "Yes" : "No"}</span>
+              <span>{infoData?.open_source ? "Yes" : "No"}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>Total Suply:</span>
-              <span>{priceInfo?.total_supply}</span>
+              <span>{tickerData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{priceInfo?.max_supply}</span>
+              <span>{tickerData?.max_supply}</span>
             </OverviewItem>
           </Overview>
           <Tabs>
