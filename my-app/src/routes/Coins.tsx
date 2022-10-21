@@ -65,11 +65,9 @@ interface CoinInterface {
   type: string;
 }
 
-interface ICoinsProps {
-  toggleDark: (() => void);
-}
+interface ICoinsProps {}
 
-export function Coins({ toggleDark }:ICoinsProps) {
+export function Coins({}: ICoinsProps) {
   const { isLoading, data } = useQuery<CoinInterface[]>(
     ["allCoins"],
     axiosCoins
@@ -84,7 +82,6 @@ export function Coins({ toggleDark }:ICoinsProps) {
       </HelmetProvider>
       <Header>
         <Title>코인</Title>
-        <button onClick={toggleDark}>Toggle Mode</button>
       </Header>
       {isLoading ? (
         <Loader>"Loading"</Loader>

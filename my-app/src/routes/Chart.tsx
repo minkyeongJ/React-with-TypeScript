@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useOutletContext } from "react-router-dom";
 import { axiosCoinHistory } from "../api";
 import ApexChart from "react-apexcharts";
+import { useRecoilValue } from "recoil";
+import { isDarkAtom } from "./atoms";
 
 interface ICartProps {
   coinId: string;
@@ -18,11 +20,10 @@ interface IHistorical {
   market_cap: number;
 }
 
-interface ChartProps {
-  isDark: boolean;
-}
+interface ChartProps {}
 
-export function Chart({ isDark }: ChartProps) {
+export function Chart({}: ChartProps) {
+  const isDark = useRecoilValue(isDarkAtom);
   const coinId = useOutletContext<ICartProps>().coinId;
   console.log(coinId);
   const { isLoading, data } = useQuery<IHistorical[]>(
