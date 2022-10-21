@@ -1,7 +1,8 @@
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import { Router } from "./routes/Router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-// import Circle from "./Circle";
+import { darkTheme, lightTheme } from "./theme";
+import { useState } from "react";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.bgColor};
@@ -74,11 +75,15 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function App() {
+  const [isDark, setIsDark] = useState(false);
+  const toggleDark =() => setIsDark((current) => !current);
   return (
     <>
-      <GlobalStyle />
-      <Router />
-      <ReactQueryDevtools initialIsOpen={true} />
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <GlobalStyle />
+        <Router toggleDark={toggleDark} isDark={ isDark} />
+        <ReactQueryDevtools initialIsOpen={true} />
+      </ThemeProvider>
     </>
   );
 }
