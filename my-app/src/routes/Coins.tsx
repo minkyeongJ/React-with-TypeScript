@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { axiosCoins } from "../api";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useSetRecoilState } from "recoil";
+import { isDarkAtom } from "./atoms";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -68,6 +70,8 @@ interface CoinInterface {
 interface ICoinsProps {}
 
 export function Coins({}: ICoinsProps) {
+  const setterFn = useSetRecoilState(isDarkAtom);
+  const toggleDarkAtom = ()=>setterFn((prev)=>!prev)
   const { isLoading, data } = useQuery<CoinInterface[]>(
     ["allCoins"],
     axiosCoins
@@ -82,6 +86,7 @@ export function Coins({}: ICoinsProps) {
       </HelmetProvider>
       <Header>
         <Title>코인</Title>
+        <button onClick={toggleDarkAtom}>Toggle Mode</button>
       </Header>
       {isLoading ? (
         <Loader>"Loading"</Loader>
